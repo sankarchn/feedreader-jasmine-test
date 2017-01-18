@@ -38,7 +38,7 @@ $(function() {
         it('have valid URLs', function() {
             allFeeds.forEach(function (feed) {
                 expect(feed.url).toBeDefined();
-                expect(feed.url).not.toBe("");
+                expect(feed.url).not.toBe('');
             });
 
         });
@@ -79,58 +79,57 @@ $(function() {
             var bodyElem = $('body'),
                 menuElem = $('.menu-icon-link');
             menuElem.simulate('click');
-            expect(bodyElem.hasClass("menu-hidden")).toBe(false);
+            expect(bodyElem.hasClass("menu-hidden")).toBeFalsy();
             menuElem.simulate('click');
-            expect(bodyElem.hasClass("menu-hidden")).toBe(true);
+            expect(bodyElem.hasClass("menu-hidden")).toBeTruthy();
         });
+    });
 
         /* A new test suite named "Initial Entries" */
-        describe('Initial Entries', function() {
-            beforeEach(function(done) {
-                loadFeed(0, function () {
-                    done();
-                });
-            }, 10000);
+    describe('Initial Entries', function() {
+        beforeEach(function (done) {
+            loadFeed(0, done);
+        });
 
-            /* A test that ensures when the loadFeed
-             * function is called and completes its work, there is at least
-             * a single .entry element within the .feed container.
-             * Remember, loadFeed() is asynchronous so this test will require
-             * the use of Jasmine's beforeEach and asynchronous done() function.
-             */
-            it("loadFeed function gets atleast a single element", function (done) {
-                expect($(".entry").length).toBeGreaterThan(0);
+        /* A test that ensures when the loadFeed
+         * function is called and completes its work, there is at least
+         * a single .entry element within the .feed container.
+         * Remember, loadFeed() is asynchronous so this test will require
+         * the use of Jasmine's beforeEach and asynchronous done() function.
+         */
+        it("loadFeed function gets atleast a single element", function (done) {
+            expect($(".feed .entry").length).toBeGreaterThan(0);
+            done();
+        });
+    });
+
+    /* A new test suite named "New Feed Selection" */
+    describe('New Feed Selection', function() {
+        var self;
+        beforeEach(function(done) {
+            self = this;
+            // we don't want to depend on prev test to assume contents of feed id 0
+            // are already present. Hence we fetch feeds for id 0 first and then for id 1.
+            loadFeed(0, function() {
+                self.container = $('.feed').html();
+                self.title = $('.header-title').html();
+                done();
+
+            });
+        });
+
+        /* A test that ensures when a new feed is loaded
+         * by the loadFeed function that the content actually changes.
+         * Remember, loadFeed() is asynchronous.
+         */
+        it("loadFeed function actually changes the content", function (done) {
+            loadFeed(1, function () {
+                var newContainer = $('.feed').html(),
+                    newTitle = $('.header-title').html();
+                expect(newContainer).not.toBe(self.container);
+                expect(newTitle).not.toBe(self.title);
                 done();
             });
-            /* A new test suite named "New Feed Selection" */
-             describe('New Feed Selection', function() {
-                 var self;
-                 beforeEach(function(done) {
-                     self = this;
-                     // we don't want to depend on prev test to assume contents of feed id 0
-                     // are already present. Hence we fetch feeds for id 0 first and then for id 1.
-                     loadFeed(0, function() {
-                         self.container = $('.feed').html();
-                         self.title = $('.header-title').html();
-                         done();
-
-                     });
-                 });
-
-                 /* A test that ensures when a new feed is loaded
-                  * by the loadFeed function that the content actually changes.
-                  * Remember, loadFeed() is asynchronous.
-                  */
-                 it("loadFeed function actually changes the content", function (done) {
-                     loadFeed(1, function () {
-                         var newContainer = $('.feed').html(),
-                             newTitle = $('.header-title').html();
-                         expect(newContainer).not.toBe(self.container);
-                         expect(newTitle).not.toBe(self.title);
-                         done();
-                     });
-                 });
-             });
         });
-    });     
+    });
 }());
